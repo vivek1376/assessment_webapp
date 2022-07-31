@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jgthms/minireset.css@master/minireset.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename= 'css/insertdata.css') }}">
+</head>
+<body>
+
+hello from insert data!!!
+
+<div id="wrapper">
+    <div class="main">
+        <form id="insertdata" action="/insertdata" method="post">
+            <div class="">
+                <label for="usernameinput">Username</label>
+                <input id="usernameinput" type="text">
+            </div>
+            <div class="">
+                <label for="roledropdown">Role</label>
+                <select id="roledropdown">
+                    {% for role in roles %}
+                      <option>{{ role.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename= 'js/insertdata.js') }}" crossorigin="anonymous"></script>
+</body>
+
+</html>

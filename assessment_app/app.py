@@ -24,9 +24,6 @@ def create_app():
     shutil.rmtree(UPLOAD_FOLDER, ignore_errors=True)
     os.makedirs(UPLOAD_FOLDER)
 
-    # ALLOWED_EXTENSIONS = {'csv'}
-
-
     webapp = Flask(__name__)
     webapp.config['SQLALCHEMY_DATABASE_URI'] =\
         'sqlite:///' + os.path.join(basedir, 'database.db')
@@ -43,7 +40,6 @@ def create_app():
         def __repr__(self):
             return f'<role {self.id, self.name}>'
 
-
     class User(db.Model):
         id = db.Column(db.Integer, primary_key=True)
         username = db.Column(db.Text, nullable=False)
@@ -53,45 +49,30 @@ def create_app():
         def __repr__(self):
             return f'<user {self.id, self.username, self.role_id}>'
 
-
-    ## assessment_app.models.testdb = db
-    ## assessment_app.models.users()
-
     db.drop_all()
     db.create_all()
 
-    # role1 = Role(id=1, name='teacher')
-    # role2 = Role(id=2, name='accountant')
-    # role3 = Role(id=3, name='manager')
-    # role4 = Role(id=4, name='clerk')
-    #
-    # user1 = User(username='Vivek', role_id=1)
-    #
-    # db.session.add(role1)
-    # db.session.add(role2)
-    # db.session.add(role3)
-    # db.session.add(role4)
-    #
-    # db.session.add(user1)
-
     db.session.commit()
-
 
     @webapp.route('/insertdata', methods=['GET', 'POST'])
     def insertdata():
-        if request.method == 'GET':
-            roles = Role.query.all()
-            return render_template('insertdata.html', roles=roles)
+        try:
+            if request.method == 'GET':
+                roles = Role.query.all()
+                return render_template('insertdata.html', roles=roles)
 
-        # POST
-        print("!!!post called!!", request.json)
+            # handle POST request
+            print("!!!post called!!", request.json)
 
-        newuser = User(username=request.json['username'], role_id=request.json['roleid'])
+            newuser = User(username=request.json['username'], role_id=request.json['roleid'])
 
-        db.session.add(newuser)
-        db.session.commit()
+            db.session.add(newuser)
+            db.session.commit()
 
-        return json.dumps({"msg":"from insertdata"})
+        except Exception as e:
+            return json.dumps({"statusmsg": "Error!" + str(e)})
+
+        return json.dumps({"statusmsg": "Added new user!"})
 
     @webapp.route('/parsefile', methods=['GET', 'POST'])
     def parsefile():
@@ -99,51 +80,50 @@ def create_app():
             return render_template('parsefile.html')
 
         # handle POST request
-        usersfile = request.files['usersfile']
-        rolesfile = request.files['rolesfile']
+        try:
+            usersfile = request.files['usersfile']
+            rolesfile = request.files['rolesfile']
 
-        if usersfile.filename == '' or rolesfile.filename == '':
-            return json.dumps({"msg":"file error"})
+            if usersfile.filename == '' or rolesfile.filename == '':
+                return json.dumps({"msg":"file error"})
 
-        usersfile_ext = os.path.splitext(usersfile.filename)[1]
-        rolesfile_ext = os.path.splitext(rolesfile.filename)[1]
+            usersfile_ext = os.path.splitext(usersfile.filename)[1]
+            rolesfile_ext = os.path.splitext(rolesfile.filename)[1]
 
-        if usersfile_ext not in webapp.config['UPLOAD_EXTENSIONS'] or \
-            rolesfile_ext not in webapp.config['UPLOAD_EXTENSIONS']:
-            return json.dumps({"msg": "file error"})
+            if usersfile_ext not in webapp.config['UPLOAD_EXTENSIONS'] or \
+                rolesfile_ext not in webapp.config['UPLOAD_EXTENSIONS']:
+                return json.dumps({"msg": "file error"})
 
-        # now, save files
-        usersfilename = secure_filename(usersfile.filename)
-        rolesfilename = secure_filename(rolesfile.filename)
+            # now, save files
+            usersfilename = secure_filename(usersfile.filename)
+            rolesfilename = secure_filename(rolesfile.filename)
 
-        usersfilepath = os.path.join(webapp.config['UPLOAD_FOLDER'], usersfilename)
-        rolesfilepath = os.path.join(webapp.config['UPLOAD_FOLDER'], rolesfilename)
+            usersfilepath = os.path.join(webapp.config['UPLOAD_FOLDER'], usersfilename)
+            rolesfilepath = os.path.join(webapp.config['UPLOAD_FOLDER'], rolesfilename)
 
-        print("now saving:", usersfilename, rolesfilename)
+            print("now saving:", usersfilename, rolesfilename)
 
-        usersfile.save(usersfilepath)
-        rolesfile.save(rolesfilepath)
+            usersfile.save(usersfilepath)
+            rolesfile.save(rolesfilepath)
 
-        usersdf = pd.read_csv(usersfilepath, skipinitialspace=True)
-        rolesdf = pd.read_csv(rolesfilepath, skipinitialspace=True)
+            usersdf = pd.read_csv(usersfilepath, skipinitialspace=True)
+            rolesdf = pd.read_csv(rolesfilepath, skipinitialspace=True)
 
-        # print(type(usersdf))
-        # print(usersdf)
+            for userrow in usersdf.itertuples():
+                db.session.add(User(id=userrow.id, username=userrow.username, role_id=userrow.role_id))
 
-        for userrow in usersdf.itertuples():
-            db.session.add(User(id=userrow.id, username=userrow.username, role_id=userrow.role_id))
+                print("user is:", userrow.username)
 
-            print("user is:", userrow.username)
+            for rolerow in rolesdf.itertuples():
+                db.session.add(Role(id=rolerow.id, name=rolerow.name))
+                print("role is:", rolerow.name)
 
-        for rolerow in rolesdf.itertuples():
-            db.session.add(Role(id=rolerow.id, name=rolerow.name))
-            print("role is:", rolerow.name)
+            db.session.commit()
 
-        db.session.commit()
+        except Exception as e:
+            return json.dumps({"statusmsg": "Error! " + str(e)})
 
-
-
-        return json.dumps({})
+        return json.dumps({"statusmsg": "csv files parsed and db created!"})
 
 
     @webapp.route('/viewdb')

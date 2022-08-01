@@ -1,6 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@700&display=swap');
+
 h1 {
-    border: 2px #eee solid;
-    color: brown;
+    // border: 2px #eee solid;
+    // color: brown;
     text-align: center;
-    padding: 10px;
+    padding: 0.5em;
+}
+
+div#wrapper {
+    margin: 0.6em;
+    padding: 1em;
+    background-color: #efe6dd;
+    border-radius: 0.3em;
+}
+
+div#sbmt-btn {
+    margin-top: 3em;
+}
+
+body {
+    font-family: 'Courier Prime', monospace;
+}
+
+p#statusmsg {
+    margin-top: 2em;
 }

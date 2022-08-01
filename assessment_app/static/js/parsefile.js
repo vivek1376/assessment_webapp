@@ -14,6 +14,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }).then(function (response) {
                 console.log(response);
+
+                console.log("post response:", response['data']);
+
+                statusmsg = response['data']['statusmsg']
+                document.getElementById("statusmsg").innerText = statusmsg;
             });
         });
 

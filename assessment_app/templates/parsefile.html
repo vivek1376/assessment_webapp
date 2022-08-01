@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename= 'css/insertdata.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
 </head>
 <body>
 <div id="wrapper">
     <div class="main">
+        <h1>Create DB from csv files</h1>
         <form class="form-horizontal" id="parsefileform" action="/parsefile" method="post">
             <div class="form-group">
                 <div class="col-2 col-sm-7">
@@ -30,6 +31,7 @@
                 <input id="sbmt-btn" type="submit" class="btn btn-primary btn-lg" value="Create DB">
             </div>
         </form>
+        <p id="statusmsg"></p>
     </div>
 </div>
 

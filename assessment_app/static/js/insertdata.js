@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
-    console.log("hello from insertdata.js!!!")
-
+    // console.log("hello from insertdata.js!!!")
 
     document.getElementById("insertdata").addEventListener('submit',
         function (event) {
@@ -28,10 +27,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }).catch(function (error) {
                 console.log(error);
             });
-
         });
-
-
-
 });
 

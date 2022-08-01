@@ -3,17 +3,9 @@ import os, time, json, shutil, pathlib
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy, event
 import pandas as pd
-
 from werkzeug.utils import secure_filename
+# from sqlalchemy.sql import func
 
-
-from sqlalchemy.sql import func
-
-import assessment_app.testscr
-# import assessment_app.models
-
-
-# import testscr
 
 def create_app():
     basedir = os.path.abspath(os.path.dirname(__file__))
@@ -45,7 +37,6 @@ def create_app():
         username = db.Column(db.Text, nullable=False)
         role_id = db.Column(db.Integer, db.ForeignKey(Role.id), nullable=False)
 
-        # roles = relationship("Role")
         def __repr__(self):
             return f'<user {self.id, self.username, self.role_id}>'
 
@@ -85,14 +76,14 @@ def create_app():
             rolesfile = request.files['rolesfile']
 
             if usersfile.filename == '' or rolesfile.filename == '':
-                return json.dumps({"msg":"file error"})
+                return json.dumps({"statusmsg":"filename error"})
 
             usersfile_ext = os.path.splitext(usersfile.filename)[1]
             rolesfile_ext = os.path.splitext(rolesfile.filename)[1]
 
             if usersfile_ext not in webapp.config['UPLOAD_EXTENSIONS'] or \
                 rolesfile_ext not in webapp.config['UPLOAD_EXTENSIONS']:
-                return json.dumps({"msg": "file error"})
+                return json.dumps({"statusmsg": "file extension error"})
 
             # now, save files
             usersfilename = secure_filename(usersfile.filename)
@@ -101,7 +92,7 @@ def create_app():
             usersfilepath = os.path.join(webapp.config['UPLOAD_FOLDER'], usersfilename)
             rolesfilepath = os.path.join(webapp.config['UPLOAD_FOLDER'], rolesfilename)
 
-            print("now saving:", usersfilename, rolesfilename)
+            # print("now saving:", usersfilename, rolesfilename)
 
             usersfile.save(usersfilepath)
             rolesfile.save(rolesfilepath)
@@ -111,12 +102,11 @@ def create_app():
 
             for userrow in usersdf.itertuples():
                 db.session.add(User(id=userrow.id, username=userrow.username, role_id=userrow.role_id))
-
-                print("user is:", userrow.username)
+                # print("user is:", userrow.username)
 
             for rolerow in rolesdf.itertuples():
                 db.session.add(Role(id=rolerow.id, name=rolerow.name))
-                print("role is:", rolerow.name)
+                # print("role is:", rolerow.name)
 
             db.session.commit()
 
@@ -128,21 +118,10 @@ def create_app():
 
     @webapp.route('/viewdb')
     def showall():
-        print("users", User.query.all())
-        print("roles", Role.query.all())
 
         users = User.query.all()
         roles = Role.query.all()
 
         return render_template('viewdb.html', users=users, roles=roles)
-
-
-    @webapp.route('/')
-    def hello():
-        return 'Hello, World!'
-
-    @webapp.route('/template')
-    def index():
-        return render_template('index.html')
 
     return webapp

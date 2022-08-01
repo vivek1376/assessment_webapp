@@ -53,8 +53,7 @@ def create_app():
                 return render_template('insertdata.html', roles=roles)
 
             # handle POST request
-            print("!!!post called!!", request.json)
-
+            # print("!!!post called!!", request.json)
             newuser = User(username=request.json['username'], role_id=request.json['roleid'])
 
             db.session.add(newuser)
@@ -93,7 +92,6 @@ def create_app():
             rolesfilepath = os.path.join(webapp.config['UPLOAD_FOLDER'], rolesfilename)
 
             # print("now saving:", usersfilename, rolesfilename)
-
             usersfile.save(usersfilepath)
             rolesfile.save(rolesfilepath)
 

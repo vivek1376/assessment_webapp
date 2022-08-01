@@ -131,7 +131,10 @@ def create_app():
         print("users", User.query.all())
         print("roles", Role.query.all())
 
-        return render_template('viewdb.html')
+        users = User.query.all()
+        roles = Role.query.all()
+
+        return render_template('viewdb.html', users=users, roles=roles)
 
 
     @webapp.route('/')

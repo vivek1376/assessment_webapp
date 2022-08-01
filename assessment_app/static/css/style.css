@@ -4,7 +4,9 @@ h1 {
     // border: 2px #eee solid;
     // color: brown;
     text-align: center;
-    padding: 0.5em;
+    // padding: 0.5em;
+    margin-top: 0.5em;
+    margin-bottom: 0.3em;
 }
 
 div#wrapper {

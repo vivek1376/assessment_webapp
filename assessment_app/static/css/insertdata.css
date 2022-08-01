@@ -1,0 +1,10 @@
+div#wrapper {
+    margin: 0.6em;
+    padding: 1em;
+    background-color: #efe6dd;
+    border-radius: 0.3em;
+}
+
+div#sbmt-btn {
+    margin-top: 3em;
+}

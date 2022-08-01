@@ -1,7 +1,7 @@
-import os
+import os, time, json
 
 from flask import Flask, render_template, request
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, event
 
 from sqlalchemy.sql import func
 
@@ -22,23 +22,21 @@ def create_app():
 
 
     class Role(db.Model):
-        # __tablename__ + "role"
         id = db.Column(db.Integer, primary_key=True)
         name = db.Column(db.Text, nullable=False)
 
         def __repr__(self):
-            return f'<id {self.id}>'
+            return f'<role {self.id, self.name}>'
 
 
     class User(db.Model):
-        # __tablename__ = "user"
         id = db.Column(db.Integer, primary_key=True)
         username = db.Column(db.Text, nullable=False)
         role_id = db.Column(db.Integer, db.ForeignKey(Role.id), nullable=False)
 
         # roles = relationship("Role")
         def __repr__(self):
-            return f'<id {self.id}>'
+            return f'<user {self.id, self.username, self.role_id}>'
 
 
     ## assessment_app.models.testdb = db
@@ -70,11 +68,25 @@ def create_app():
             return render_template('insertdata.html', roles=roles)
 
         # POST
+        print("!!!post called!!", request.json)
 
+        newuser = User(username=request.json['username'], role_id=request.json['roleid'])
+
+        db.session.add(newuser)
+        db.session.commit()
+
+        return json.dumps({"msg":"from insertdata"})
+
+    @webapp.route('/parsefile', methods=['GET', 'POST'])
+    def parsefile():
+        pass
 
 
     @webapp.route('/viewdb')
     def showall():
+        print("users", User.query.all())
+        print("roles", Role.query.all())
+
         return render_template('viewdb.html')
 
 

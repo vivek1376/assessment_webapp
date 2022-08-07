@@ -25,6 +25,13 @@ def create_app():
 
     db = SQLAlchemy(webapp)
 
+    # enforce foreign key constraint, see https://stackoverflow.com/a/70456560
+    def _fk_pragma_on_connect(dbapi_con, con_record):  # noqa
+        dbapi_con.execute('pragma foreign_keys=ON')
+
+    with webapp.app_context():
+        event.listen(db.engine, 'connect', _fk_pragma_on_connect)
+
     class Role(db.Model):
         id = db.Column(db.Integer, primary_key=True)
         name = db.Column(db.Text, nullable=False)
@@ -75,7 +82,8 @@ def create_app():
             rolesfile = request.files['rolesfile']
 
             if usersfile.filename == '' or rolesfile.filename == '':
-                return json.dumps({"statusmsg":"filename error"})
+                raise Exception("One or more filenames not valid")
+                # return json.dumps({"statusmsg":"filename error"})
 
             usersfile_ext = os.path.splitext(usersfile.filename)[1]
             rolesfile_ext = os.path.splitext(rolesfile.filename)[1]
